@@ -11,7 +11,7 @@ Analysis Geo 880**
 | **Student 2:** |                 |
 
 ## Abstract 
-In the canton of Fribourg, a wild boar could be followed for 2 years. This wild boar was located in the pre-Alps. 
+In the canton of Fribourg, one wild boar ("Jojo") could be followed for 2 years. This wild boar was located in the pre-Alps. 
 
 ## Research Questions
 Is there a seasonal migration to lower and higher elevations? 
@@ -43,4 +43,5 @@ packages for statistical analysis
 That the agriculture department does not provide data for agricultural crops. Plan B would be an analysis related to the presence of roads (are there more limiting roads? where would wildlife corridors make sense given wild boar movements?)
 
 ## Questions? 
+The collar emitted 1x/h from 6pm to 6am then 1x at 6am, 1x at 12pm and 1x at 6pm. How to integrate this bias? 
 In addition to visualization, how can we statistically verify that there is a relationship between the different elements? 
