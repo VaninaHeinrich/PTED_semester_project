@@ -7,6 +7,9 @@ editor_options:
   markdown: 
     wrap: 72
 ---
+```{r, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+``` 
 
 # Spatiotemporal behaviour of a male wild boar, sus scrofa, in the pre-Alps of the canton Fribourg
 
@@ -65,7 +68,7 @@ hunting on his habits?
 
 ## Material and Methods
 
-#Data set
+####Data set
 
 The data set used in this project comes from the Forest and Nature
 Department of the canton of Fribourg. In September 2019, a male wild
@@ -86,8 +89,8 @@ defined by X and Y coordinates according to the Swiss coordinate system
 -   X: X coordinate
 -   Y: Y coordinate
 
-#Preprocessing This data set required some supplements derived from the
-base file data to allow for further analysis to answer the questions
+####Preprocessing This data set required some supplements derived from
+the base file data to allow for further analysis to answer the questions
 outlined in the introduction to this project.A first visual analysis of
 the file in excel was done to observe the data.
 
@@ -131,16 +134,15 @@ An additional column was created to indicate whether or not hunting was
 taking place, based on the hunting pressure (0 = no hunting, 1/2/3 =
 hunting).
 
-#Global analysis of the home range
+####Global analysis of the home range
 
-#Density and path
+####Density and path
 
-#Land cover and use of it
+####Land cover and use of it
 
-#Activity patterns
+####Activity patterns
 
-#Effet of Hunting
-
+####Effet of Hunting
 
 ## Results
 
@@ -157,12 +159,6 @@ will be carried out in a second time, outside the framework of this
 work.
 
 ## R-Code
-
-```{r}
-knitr::opts_chunk$set(echo = FALSE)       # hides code
-knitr::opts_chunk$set(warning = FALSE)    # hides warnings
-knitr::opts_chunk$set(message = FALSE)    # hides messages
-```
 
 ```{r}
 #packages needed 
