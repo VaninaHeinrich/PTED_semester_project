@@ -2,98 +2,166 @@
 title: Spatiotemporal behaviour of a male wild boar, sus scrofa, in the pre-Alps of the canton Fribourg.
 subtitle: Projet for the course "Patterns and trends in environmental data"
 author: Vanina Heinrich, heinrvan@students.zhaw.ch
-output: html_document
-
+output: Rmd File
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
+# Spatiotemporal behaviour of a male wild boar, sus scrofa, in the pre-Alps of the canton Fribourg
 
-<!-- You can add  your R Code with Code chunks-->
+#### Projet for the course "Patterns and trends in environmental data"
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-
-# You can set chunk options individually per code chunk, as was done with this
-# code chunk.
-
-# echo = FALSE           hides the code from the generated output
-# warning = FALSE        hides warnings from the generated output
-# message = FALSE        hides messages from the generated output
-
-# To set the setting for all code chunks, use the following code:
-
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
-
-```
-
+Vanina Heinrich
 
 ## Abstract
 
-In September 2019, a male wild boar was captured in the pre-Alps of Fribourg. It was equipped with a GPS collar and its movements could be followed for almost 2 whole years. The tracking of this wild boar was analyzed according to 4 aspects: global analysis of its movements, analysis of important points of presence, analysis of the use of the land cover and finally analysis of its activity patterns. The results show a great variability both in the territory occupied and in the use of the different covers. Hunting shows an important influence on its general activity. The results give a direction to future analyses that will be carried out on other individuals in the pre-Alps in order to confirm the elements found during this project. 
+In September 2019, a male wild boar was captured in the pre-Alps of
+Fribourg. It was equipped with a GPS collar and its movements could be
+followed for almost 2 whole years. The tracking of this wild boar was
+analyzed according to 4 aspects: global analysis of its movements,
+analysis of important points of presence, analysis of the use of the
+land cover and finally analysis of its activity patterns. The results
+show a great variability both in the territory occupied and in the use
+of the different covers. Hunting shows an important influence on its
+general activity. The results give a direction to future analyses that
+will be carried out on other individuals in the pre-Alps in order to
+confirm the elements found during this project.
 
-No studies have been conducted on the movements of wild boar in the Pre-Alps. These analyses are done in the framework of a pre-study. The data are the property of the state of Fribourg and must be treated confidentially. 
-
+No studies have been conducted on the movements of wild boar in the
+Pre-Alps. These analyses are done in the framework of a pre-study. The
+data are the property of the state of Fribourg and must be treated
+confidentially.
 
 ## Introduction and research aims
 
-Wild boars, sus scrofa, are common mammals in Europe. The study of their movements and habits is used in particular within the framework of the management of their populations but also for the prevention of damage caused to agricultural crops. Many studies have been done to understand the spatio-temporal behavior of wild boars but none has been published on wild boars in the Pre-Alps. The prealps present a particular territory due to their steep nature and their landscape coverage.
+Wild boars, sus scrofa, are common mammals in Europe. The study of their
+movements and habits is used in particular within the framework of the
+management of their populations but also for the prevention of damage
+caused to agricultural crops. Many studies have been done to understand
+the spatio-temporal behavior of wild boars but none has been published
+on wild boars in the Pre-Alps. The pre-Alps present a particular
+territory due to their steep nature and their landscape coverage.
 
-In this study, the movements of a male wild boar located in the Fribourg pre-Alps were analyzed over almost two years. The first goal of these analyses was to define the animal's home range and its use of it, but also to see if landscape aspects (altitude, land cover) influence its use of space. The second goal was to analyze its habits and the effect of an anthropogenic disturbance (hunting in this case) on its habits. 
+In this study, the movements of a male wild boar located in the Fribourg
+pre-Alps were analyzed over almost two years. The first goal of these
+analyses was to define the animal's home range and its use of it, but
+also to see if landscape aspects (altitude, land cover) influence its
+use of space. The second goal was to analyze its habits and the effect
+of an anthropogenic disturbance (hunting in this case) on its habits.
 
-This study was done in part from a global analysis to a more detailed analysis. Four elements guided the analysis with the following questions: 
-- The analysis of its general home range: where is the boar located? What are the movements it has made and when? Are there differences between seasons in its occupation of space? 
-- Analysis of areas of high density of presence: did the boar stay in certain places for a long time or did it go back and forth? What is present in these areas? 
-- Analysis of surface cover: what is found in this boar's home range? How did it use the surface cover? What is found in areas of high density presence? 
-- Analysis of its habits: when is it most active? Are there differences in the use of ground cover? What is the impact of hunting on his habits? 
-
-
+This study was done in part from a global analysis to a more detailed
+analysis. Four elements guided the analysis with the following
+questions: - The analysis of its general home range: where is the boar
+located? What are the movements it has made and when? Are there
+differences between seasons in its occupation of space? - Analysis of
+areas of high density of presence: did the boar stay in certain places
+for a long time or did it go back and forth? What is present in these
+areas? - Analysis of surface cover: what is found in this boar's home
+range? How did it use the surface cover? What is found in areas of high
+density presence? - Analysis of its habits: when is it most active? Are
+there differences in the use of ground cover? What is the impact of
+hunting on his habits?
 
 ## Material and Methods
-#Data set 
 
-The data set used in this project comes from the Forest and Nature Department of the canton of Fribourg. In September 2019, a male wild boar was captured in the Fribourg pre-Alps and fitted with a GPS collar. This collar transmitted the position of the animal every hour from 6pm to 6am and then once at noon. The collar was programmed by the service based on the literature mentioning that the wild boar is a nocturnal animal. Location data could thus be obtained until July 2021. The animal then suddenly disappeared and so did the GPS transmission. 
+#Data set
 
-The data set contains 9431 lines, each corresponding to a location defined by X and Y coordinates according to the Swiss coordinate system (LV95/LV03, crs = 2056). The base file contains the following columns: 
+The data set used in this project comes from the Forest and Nature
+Department of the canton of Fribourg. In September 2019, a male wild
+boar was captured in the Fribourg pre-Alps and fitted with a GPS collar.
+This collar transmitted the position of the animal every hour from 6pm
+to 6am and then once at noon. The collar was programmed by the service
+based on the literature mentioning that the wild boar is a nocturnal
+animal. Location data could thus be obtained until July 2021. The animal
+then suddenly disappeared and so did the GPS transmission.
 
-- Date: date of the survey
-- Time: time of the survey
-- Altitude: altitude of the GPS point
-- X: X coordinate
-- Y: Y coordinate
+The data set contains 9431 lines, each corresponding to a location
+defined by X and Y coordinates according to the Swiss coordinate system
+(LV95/LV03, crs = 2056). The base file contains the following columns:
 
-#Preprocessing
-This data set required some supplements derived from the base file data to allow for further analysis to answer the questions outlined in the introduction to this project.A first visual analysis of the file in excel was done to observe the data. 
+-   Date: date of the survey
+-   Time: time of the survey
+-   Altitude: altitude of the GPS point
+-   X: X coordinate
+-   Y: Y coordinate
 
-The analysis of the "Altitude" column revealed values that could not correspond to the region where the boar was located. Indeed, the highest point in the region is at 2014m (Dent de Lys) and some location points exceeded this value. These points were removed. The same was done for the location points below 600m altitude.
+#Preprocessing This data set required some supplements derived from the
+base file data to allow for further analysis to answer the questions
+outlined in the introduction to this project.A first visual analysis of
+the file in excel was done to observe the data.
 
-The dates were analyzed and a subclassification by months and years was done. These data were added as new columns to the available data. Date and time were also merged together in a new column.A "Daytime" column has been added. This one is based on the "Timelag" column. If the time difference is less than 65 minutes, it concerns measurements taken at night (from 6pm to 6am), if this difference is greater than 360 minutes, it concerns measurements taken during the day (between 6am and 6pm). The column therefore contains the information Day or Night. 
+The analysis of the "Altitude" column revealed values that could not
+correspond to the region where the boar was located. Indeed, the highest
+point in the region is at 2014m (Dent de Lys) and some location points
+exceeded this value. These points were removed. The same was done for
+the location points below 600m altitude.
 
-In order to calculate the activity pattern of this boar, I decided to base my calculations on its speed. The speed is calculated by the distance traveled in a certain time lapse. For that, a "Timelag" column was created which indicates the time elapsed between two locations, based on the "Datetime" column created during the previous manipulation of the "Date" and "Time" data. Then, a "steplength" column was created. This one indicates the distance between two rows, i.e. two location points. Finally, a "Speed" column has been created. This one is the result of the "Steplength" column divided by the "Timelag" column (Speed = Steplength/Timelag).
+The dates were analyzed and a subclassification by months and years was
+done. These data were added as new columns to the available data. Date
+and time were also merged together in a new column.A "Daytime" column
+has been added. This one is based on the "Timelag" column. If the time
+difference is less than 65 minutes, it concerns measurements taken at
+night (from 6pm to 6am), if this difference is greater than 360 minutes,
+it concerns measurements taken during the day (between 6am and 6pm). The
+column therefore contains the information Day or Night.
 
-Finally, to analyze the influence of hunting on the activity of this boar, two new columns were created. The first one is the hunting pressure which was evaluated according to the number of species hunted at the same time on a given date. This information was provided by the Forest and Nature Department of the Canton of Fribourg. Based on this information, four categories were established for hunting pressure: 
+In order to calculate the activity pattern of this boar, I decided to
+base my calculations on its speed. The speed is calculated by the
+distance traveled in a certain time lapse. For that, a "Timelag" column
+was created which indicates the time elapsed between two locations,
+based on the "Datetime" column created during the previous manipulation
+of the "Date" and "Time" data. Then, a "steplength" column was created.
+This one indicates the distance between two rows, i.e. two location
+points. Finally, a "Speed" column has been created. This one is the
+result of the "Steplength" column divided by the "Timelag" column (Speed
+= Steplength/Timelag).
 
-0 - no hunting
-1 - only wild boar hunting
-2 - hunting of wild boar + 1 other species
-3 - wild boar hunting + 2 other species
+Finally, to analyze the influence of hunting on the activity of this
+boar, two new columns were created. The first one is the hunting
+pressure which was evaluated according to the number of species hunted
+at the same time on a given date. This information was provided by the
+Forest and Nature Department of the Canton of Fribourg. Based on this
+information, four categories were established for hunting pressure:
 
-An additional column was created to indicate whether or not hunting was taking place, based on the hunting pressure (0 = no hunting, 1/2/3 = hunting).
+0 - no hunting 1 - only wild boar hunting 2 - hunting of wild boar + 1
+other species 3 - wild boar hunting + 2 other species
 
+An additional column was created to indicate whether or not hunting was
+taking place, based on the hunting pressure (0 = no hunting, 1/2/3 =
+hunting).
 
 #Global analysis of the home range
 
+#Density and path
+
+#Land cover and use of it
+
+#Activity patterns
+
+#Effet of Hunting
+
+
 ## Results
 
-
+results results results results
 
 ## Discussion
 
-These results were validated by personal visualization. A detailed statistical analysis is necessary to be able to affirm if the trends observed on the obtained graphs are significant or not. This analysis will be carried out in a second time, outside the framework of this work. 
+Discussion discussion discussion discussion
 
+These results were validated by personal visualization. A detailed
+statistical analysis is necessary to be able to affirm if the trends
+observed on the obtained graphs are significant or not. This analysis
+will be carried out in a second time, outside the framework of this
+work.
 
 ## R-Code
 
-
 ```{r}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE)       # hides code
+knitr::opts_chunk$set(warning = FALSE)    # hides warnings
+knitr::opts_chunk$set(message = FALSE)    # hides messages
 ```
 
 ```{r}
@@ -194,7 +262,7 @@ ggplot(jojo2020) + geom_point(mapping = aes(X, Y, colour = Month))
 ggplot(data = jojo2020) +geom_boxplot(mapping = aes(x = Month, y = Altitude), color = "indianred4") +scale_y_continuous(limits = c(400, 2000)) + ggtitle("Elevation distribution per Month in 2020") + xlab("Month") + ylab("Elevation in meters") + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Density-map was done with ArcGis-Pro. 
+Density-map was done with ArcGis-Pro.
 
 ```{r}
 #Analyzing path, 2020
@@ -325,4 +393,3 @@ ggplot(na.omit(jojo_join)) + geom_boxplot(mapping = aes(x = Landcover, y = Speed
 
 aggregate(Speed ~ Landcover, FUN=mean, data = jojo_join)
 ```
-
