@@ -29,9 +29,6 @@ library(gganimate)
 ```
 
 
-
-
-
 ## Abstract
 
 In September 2019, a male wild boar was captured in the pre-Alps of
@@ -92,12 +89,11 @@ jojo <- read_delim("20220504_sanglier_SFN.csv", delim = ";", escape_double = FAL
 
 jojo <- jojo %>%  filter(Altitude > 600 & Altitude < 2000 )
 
-ggplot(head(jojo)) + geom_point(mapping = aes(X, Y))
 ```
 
-```{r}
-knitr::opts_chunk$set(eval = FALSE)
-```
+
+
+
 
 ### Data set
 
@@ -122,6 +118,46 @@ defined by X and Y coordinates according to the Swiss coordinate system
 
 ### Preprocessing
 
+```{r}
+#tidy up the dates
+
+m <- ymd(jojo$Date)
+Monthnb <- month(m)
+y <- ymd(jojo$Date)
+Year <- year(y)
+jojo <- mutate(jojo, Monthnb, Year)
+jojo <- mutate (jojo, Month = as.character(case_when(Monthnb == 1 ~ "January", Monthnb == 2 ~ "February", Monthnb == 3 ~ "March", Monthnb == 4 ~ "April", Monthnb == 5 ~ "May", Monthnb == 6 ~ "June", Monthnb == 7 ~ "July", Monthnb == 8 ~ "August", Monthnb == 9 ~ "September", Monthnb == 10 ~ "October", Monthnb == 11 ~ "November", Monthnb == 12 ~ "December")))
+jojo <- mutate(jojo, Monthyear = paste(Month,Year))
+jojo$DateTime = ymd_hms(paste(jojo$Date, jojo$Time))
+jojo <- mutate(jojo, Month = fct_reorder(Month, Monthnb))
+```
+
+```{r}
+#Calculate Timelag, steplength and speed
+
+X2 <- lead(jojo$X, 1)
+Y2 <- lead(jojo$Y, 1)
+Steplength <- sqrt((jojo$X - X2)^2 + (jojo$Y - Y2)^2)
+jojo <- mutate(jojo,Timelag = as.numeric(difftime(lead(DateTime),DateTime)), Steplength)
+Speed <- jojo$Steplength/jojo$Timelag #speed is in meters/minutes
+jojo <- mutate(jojo, Speed)
+```
+
+```{r}
+#Adding the hunting pressure
+#Hunting pressure was calculated based on the official hunting periods of the canton Fribourg. Some of the hunting periods are overlaping depending on the species that can be hunted. Hunting pressure 0 is no hunting, 1 is 1 species hunted, 2 is 2 species hunted, 3 is 3 species hunted. One of the hunted species is always the wild boar. The more species can be hunted, the more people are out to hunt, what means more pressure/disturbance, even if the people are not necessarily hunting wild boars.
+
+jojo <- mutate(jojo, Daytime = case_when(Timelag < 65 ~ "Night", Timelag > 300 ~ "Day"))
+jojo <- mutate(jojo, Huntpressure = (case_when(Date >= "2019-09-01" & Date <= "2019-09-15" ~ "1", Date >= "2019-09-16" & Date <= "2019-09-27" ~ "3", Date >= "2019-09-28" & Date <= "2019-10-11" ~ "2", Date >= "2019-10-12" & Date <= "2019-10-13" ~ "1", Date >= "2019-10-14" & Date <= "2019-10-25" ~ "2", Date >= "2019-10-26" & Date <= "2019-11-01" ~ "1", Date >= "2019-11-02" & Date <= "2019-11-15" ~ "2", Date >= "2019-11-16" & Date <= "2019-12-31" ~ "1", Date >= "2020-01-01" & Date <= "2020-08-31" ~ "0", Date >= "2020-09-01" & Date <= "2020-09-15" ~ "1", Date >= "2020-09-16" & Date <= "2020-09-20" ~ "2", Date >= "2020-09-21" & Date <= "2020-10-02" ~ "3", Date >= "2020-10-03" & Date <= "2020-10-11" ~ "2", Date >= "2020-10-12" & Date <= "2020-10-18" ~ "1", Date >= "2020-10-19" & Date <= "2020-10-31" ~ "2", Date >= "2020-11-01" & Date <= "2020-11-06" ~ "1", Date >= "2020-11-07" & Date <= "2020-11-21" ~ "2", Date >= "2020-11-22" & Date <= "2020-12-31" ~ "2", Date >= "2021-01-01" & Date <= "2021-08-31" ~ "0")))
+jojo <- mutate(jojo, Hunting = case_when(Huntpressure == 1 ~ "yes", Huntpressure == 2 ~ "yes", Huntpressure == 3 ~ "yes", Huntpressure == 0 ~ "no"))
+```
+
+```{r}
+#isolating 2020 -> depending on the analysis, I will only use 2020 as it is the only entire year I have. 
+
+jojo2020 <- filter(jojo, Year == 2020)
+```
+
 This data set required some additional columns derived from the base
 file data to allow for further analysis to answer the questions outlined
 in the introduction to this project.A first visual analysis of the file
@@ -133,7 +169,12 @@ point in the region is at 2014m (Dent de Lys) and some location points
 exceeded this value. These points were removed. The same was done for
 the location points below 600m altitude.
 
-**(map of the region)**
+
+```{r, fig.cap="Fig 1: Map of the region",fig.align='center'}
+regio_map <- terra::rast("regio_map.tif")
+plot(regio_map) 
+```
+
 
 The dates were analyzed and a subclassification by months and years was
 done. These data were added as new columns to the available data. Date
@@ -269,9 +310,24 @@ as a function of whether hunting occurred was performed.
 
 This male boar was moving in the region of the Fribourg pre-Alps. Its
 home range was limited by the freeway to the west and by the Sarine
-river to the east. Its home range from 2019 to 2021 was 158.97 km2. 
+river to the east. Its home range from 2019 to 2021 was 158.97 km2.
 
-**Figure x with mcp**
+```{r, fig.cap="Fig 2: Home range of the wild boar from september 2019 to july 2021", fig.align='center'}
+#Global movement analysis, 2019-2021
+jojo_sf <- st_as_sf(jojo, coords = c("X", "Y"), crs = 2056)
+jojo_smry <- summarise(jojo_sf)
+jojo_mcp <- st_convex_hull(jojo_smry)
+df_hull2 <- jojo %>% select(X,Y)
+c.hull2 <- chull(df_hull2)  #Calculates convex hull#
+c.hull3 <- c(c.hull2, c.hull2[1])
+chull.coords <- df_hull2[c.hull3 ,]
+chull.poly <- Polygon(chull.coords, hole=F)  #From the package sp
+chull.area <- chull.poly@area
+#chull.area #The home range of jojo was 158968020 m2 (2019-2021)
+
+map1 <- tm_shape(regio_map) + tm_rgb() + tm_shape(jojo_mcp) + tm_polygons(col = "orange",alpha = 0.3,border.col = "red")
+map1
+```
 
 The analysis of the altitude at which the boar were located in 2020
 shows that a vertical migration to higher altitudes took place in spring
@@ -279,34 +335,115 @@ until June. From July onwards, it can be observed that the boar again
 descended to lower altitudes. For the rest of the year 2020, the boar
 was located at approximately the same altitudes.
 
-**Graph x elevation \~ month**
+```{r, fig.cap="Fig 3: Altitude were the wild boar was depending on the month in 2020", fig.align='center'}
+#Analyse of elevation, 2020
 
-### Horizontal migration and land cover use
+ggplot(data = jojo2020) +geom_boxplot(mapping = aes(x = Month, y = Altitude), color = "indianred4") +scale_y_continuous(limits = c(400, 2000)) + xlab("Month") + ylab("Elevation in meters") + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Horizontal migration and land cover use in 2020
 
 The point density analysis shows several areas of high density,
-including one in the northwest near the highway **(see Figure x)**. The
-point analysis of wild boar presence by month does not show that wild
+including one in the northwest near the highway (Figure 4). The
+point analysis (Figure 5) of wild boar presence by month does not show that wild
 boar remained for a long time (minimum one month) in the same area. Path
 analysis by month confirms this trend, indicating that the boar was
-moving back and forth within its home range.
+moving back and forth within its home range (Figure 6).
 
-**Figure X with density**
+
+```{r, fig.cap="Fig 4: Density of presence of the wild boar in 2020", fig.width=50, fig.align='center'}
+knitr::include_graphics("density2020.PNG")
+```
+
+
+```{r, fig.cap="Fig 5: Location points by month in 2020", fig.align='center'}
+#Analyzing the points per month
+ggplot(jojo2020) + geom_point(mapping = aes(X, Y, colour = Month))
+```
+
+
+```{r, fig.cap="Fig 6: Path analysis by month in 2020", fig.align='center'}
+#Analyzing path, 2020
+ggplot(jojo2020, aes(X, Y)) + geom_path(show.legend = FALSE, color = "indianred4") + facet_wrap (~ Month)
+```
+
 
 All the analyses carried out concerning the use of the different types
 of surface show that the wild boar was mainly located in the forest. Its
 presence in the forest did not vary much between months. Its presence in
 summer pastures was more important in May, June and July 2020 than in
-the other months. In January 2020, almost 30% of the wild boar were
+the other months. In January 2020, about 20% of the wild boar were
 located in areas not identified in the available geopackage compared to
-10% in December 2020. 
+10% in December 2020.
 
-**figure x with land cover per month detailled**
+
+```{r, fig.cap="Fig 7: Land cover use per month in 2020", fig.align='center'}
+#Land cover analysis : what is where and where was the wild boar, 2020
+
+jojo_sf2020 <- st_as_sf(jojo2020, coords = c("X", "Y"), crs = 2056)
+
+
+land_cover <- read_sf("land_cover.gpkg")
+
+#head(land_cover)
+
+#summary(land_cover)
+
+land_cover <- mutate (land_cover, Landcover = as.factor(case_when(HAUPTKATEGORIE_DE == "Streueflächen" ~ "Litter surfaces", HAUPTKATEGORIE_DE == "Hecken-, Feld- und Ufergehölze" ~ "Hedges, fields and riverbank woods", HAUPTKATEGORIE_DE == "Baum, überlagernd Fläche" ~ "Tree, overlaying areas", HAUPTKATEGORIE_DE == "Dauerweiden" ~ "Permanent pastures", HAUPTKATEGORIE_DE == "Dauerwiesen" ~ "Permanent meadows", HAUPTKATEGORIE_DE == "Sömmerungsfläche" ~ "Summer pastures", HAUPTKATEGORIE_DE == "Wald" ~ "Forests", HAUPTKATEGORIE_DE == "Ackerfläche" ~"Cropland", HAUPTKATEGORIE_DE == "Flächen ausserhalb der LN" ~ "Areas outside LN", HAUPTKATEGORIE_DE == "Übrige Flächen innerhalb der LN" ~ "Other areas inside LN")))
+
+land_cover <- mutate (land_cover, Maincover = as.factor(case_when(HAUPTKATEGORIE_DE == "Streueflächen" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Hecken-, Feld- und Ufergehölze" ~ "Hedges, field and riverbank woods", HAUPTKATEGORIE_DE == "Baum, überlagernd Fläche" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Dauerweiden" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Dauerwiesen" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Sömmerungsfläche" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Wald" ~ "Forest", HAUPTKATEGORIE_DE == "Ackerfläche" ~"Grassland areas", HAUPTKATEGORIE_DE == "Flächen ausserhalb der LN" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Übrige Flächen innerhalb der LN" ~ "Grassland areas")))
+
+
+
+#unique(land_cover$Landcover)
+
+#ggplot(land_cover) + geom_sf(aes(fill = Landcover)) + scale_fill_brewer(palette = "Paired")
+
+#ggplot(land_cover) + geom_sf(aes(fill = Landcover)) + scale_fill_brewer(palette = "Paired") + geom_sf(data=jojo_sf2020, color = "darkorange", show.legend = FALSE)
+
+#ggplot(land_cover) + geom_sf(aes(fill = Maincover)) + scale_fill_brewer(palette = "YlGn")
+
+#ggplot(land_cover) + geom_sf(aes(fill = Maincover)) + scale_fill_brewer(palette = "YlGn") + geom_sf(data=jojo_sf2020, color = "darkorange", show.legend = FALSE)
+
+
+#Land cover use, 2020
+
+jojo_join <- st_join(jojo_sf, land_cover)
+
+#Main cover use per month
+
+jojo_maincover <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Month, Maincover) %>% group_by(Month, Maincover) %>% count() %>% ungroup %>% group_by(Month) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate(Maincover = fct_reorder(Maincover, n, sum, desc = TRUE))
+
+
+#ggplot(na.omit(jojo_maincover), aes(Month, Percentage, fill = Maincover)) + geom_col(width = 0.3) + theme_gray() + labs(title = "Use of land cover per Month", subtitle = "Only showing the most common categories") + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")) + geom_bar(aes(Month, Percentage, fill= Maincover), colour="black", stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_fill_brewer(palette = "YlGn")
+
+#aggregate(Percentage ~ Maincover, FUN=mean, data = jojo_maincover) # 50.5% Forest, 35.7% Grassland, 0,3% Hedges
+
+
+#Detailed cover use per month
+
+jojo_landcover <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Month, Landcover) %>% group_by(Month, Landcover) %>% count() %>% ungroup %>% group_by(Month) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate (Landcover = fct_reorder(Landcover, n, sum, desc = TRUE))
+
+
+ggplot(na.omit(jojo_landcover), aes(Month, Percentage, fill = Landcover)) + geom_col(width = 0.3) + theme_gray() + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")) + geom_bar(aes(Month, Percentage, fill= Landcover), colour="black", stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_fill_brewer(palette = "YlGn")
+
+#aggregate(Percentage ~ Landcover, FUN=mean, data = jojo_landcover) 
+# 50.5% Forest, 23.7% Summer pastures, 7.7% Permanent meadows, 4.1% Permanent pastures, 0.4% Tree, overlaying areas, 0.3% Hedges, 0.2% Litter surfaces
+```
+
 
 The wild boar were primarily located in the forest during the day
 (between 6:00 am and 6:00 pm) and diversified the areas where they were
 located at night.
 
-**figure x land cover \~daytime per month**
+
+```{r, fig.cap="Fig 8: Land cover use depending on daytime for each month in 2020", fig.align='center'}
+#Main land cover use depending on day time and month, 2020
+
+jojo_mc_daytime <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Month, Daytime, Maincover) %>% group_by(Month,Daytime, Maincover) %>% count() %>% ungroup %>% group_by(Month, Daytime) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate(Maincover = fct_reorder(Maincover, n, sum, desc = TRUE))
+
+ggplot(na.omit(jojo_mc_daytime), aes(Daytime, Percentage, fill = Maincover)) + geom_col(width = 0.3) + facet_wrap (~ Month) + geom_bar(aes(Daytime, Percentage, fill= Maincover), colour="black", stat="identity") + scale_fill_brewer(palette = "YlGn")
+```
 
 ### Activity patterns
 
@@ -314,10 +451,38 @@ The speed of the boar does not show a big visual difference from month
 to month. It averages 0.64 m/min during the day (6am to 6pm) and 5.04
 m/min at night (6pm to 6am).
 
+```{r, fig.cap="Fig 9: Speed depending on daytime", fig.align='center'}
+#Analyse of activity patterns, based on the speed (in meters/minute), 2019-2021
+
+#summary(jojo)
+#All websites i found say that maximal speed for a wildboar is about 40 km/h. In our case, the max speed is 55 m/min = 3.3 km/h. Therefore, there is no correction of the data. We also don't have any negative values
+
+#Speed depending on daytime and month
+
+jojo_day <- subset(jojo, Daytime == "Day", select=c(X, Y, Date, Time, Timelag, Steplength, Speed, Huntpressure, Hunting))
+jojo_night <- subset(jojo, Daytime == "Night", select=c(X, Y, Date, Time, Timelag, Steplength, Speed, Huntpressure, Hunting))
+#summary(jojo_day) #mean speed = 0.64 m/min
+#summary(jojo_night) #mean speed = 5.04 m/min 
+
+ggplot(na.omit(jojo)) + geom_boxplot(mapping = aes(Daytime, Speed), color = "indianred4") + scale_y_continuous(limits = c(0, 30)) + ggtitle("Speed depending on Daytime") + xlab("Daytime") + ylab("Speed in m/min")
+```
+
+
+```{r, fig.cap="Fig 10: Speed depending on daytime for each month", fig.align='center'}
+ggplot(na.omit(jojo)) +geom_boxplot(mapping = aes(x = Daytime, y = Speed), color = "indianred4") +scale_y_continuous(limits = c(0, 30)) + ggtitle("Speed depending on Daytime per Month") + xlab("Month") + ylab("Speed in m/min") + facet_wrap(~Month)
+```
+
+
 The boar moved slower on average in the forest than in other surface
 types.
 
-**(Table)**
+```{r}
+#Speed depending on land cover use, 2020
+
+#ggplot(na.omit(jojo_join)) + geom_boxplot(mapping = aes(x = Landcover, y = Speed), color = "indianred4") + scale_y_continuous(limits = c(0,30)) + scale_x_discrete(limits = c("Forests", "Permanent meadows", "Permanent pastures", "Summer pastures", "Tree, overlaying areas", "Hedges, fields and riverbank woods")) + ggtitle("Speed depending on Landcover") + xlab("Landcover") + ylab("Speed in m/min")+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+aggregate(Speed ~ Landcover, FUN=mean, data = jojo_join)
+```
 
 ### Effect of hunting
 
@@ -333,89 +498,16 @@ work.
 
 ## R-Code
 
-
-
-
 ```{r}
-#tidy up the dates
-
-m <- ymd(jojo$Date)
-Monthnb <- month(m)
-y <- ymd(jojo$Date)
-Year <- year(y)
-jojo <- mutate(jojo, Monthnb, Year)
-jojo <- mutate (jojo, Month = as.character(case_when(Monthnb == 1 ~ "January", Monthnb == 2 ~ "February", Monthnb == 3 ~ "March", Monthnb == 4 ~ "April", Monthnb == 5 ~ "May", Monthnb == 6 ~ "June", Monthnb == 7 ~ "July", Monthnb == 8 ~ "August", Monthnb == 9 ~ "September", Monthnb == 10 ~ "October", Monthnb == 11 ~ "November", Monthnb == 12 ~ "December")))
-jojo <- mutate(jojo, Monthyear = paste(Month,Year))
-jojo$DateTime = ymd_hms(paste(jojo$Date, jojo$Time))
-jojo <- mutate(jojo, Month = fct_reorder(Month, Monthnb))
+knitr::opts_chunk$set(eval = FALSE)
 ```
 
 ```{r}
-#Calculate Timelag, steplength and speed
-
-X2 <- lead(jojo$X, 1)
-Y2 <- lead(jojo$Y, 1)
-Steplength <- sqrt((jojo$X - X2)^2 + (jojo$Y - Y2)^2)
-jojo <- mutate(jojo,Timelag = as.numeric(difftime(lead(DateTime),DateTime)), Steplength)
-Speed <- jojo$Steplength/jojo$Timelag #speed is in meters/minutes
-jojo <- mutate(jojo, Speed)
+knitr::kable(df, caption = "This table shows...")
 ```
 
-```{r}
-#Adding the hunting pressure
-#Hunting pressure was calculated based on the official hunting periods of the canton Fribourg. Some of the hunting periods are overlaping depending on the species that can be hunted. Hunting pressure 0 is no hunting, 1 is 1 species hunted, 2 is 2 species hunted, 3 is 3 species hunted. One of the hunted species is always the wild boar. The more species can be hunted, the more people are out to hunt, what means more pressure/disturbance, even if the people are not necessarily hunting wild boars.
 
-jojo <- mutate(jojo, Daytime = case_when(Timelag < 65 ~ "Night", Timelag > 300 ~ "Day"))
-jojo <- mutate(jojo, Huntpressure = (case_when(Date >= "2019-09-01" & Date <= "2019-09-15" ~ "1", Date >= "2019-09-16" & Date <= "2019-09-27" ~ "3", Date >= "2019-09-28" & Date <= "2019-10-11" ~ "2", Date >= "2019-10-12" & Date <= "2019-10-13" ~ "1", Date >= "2019-10-14" & Date <= "2019-10-25" ~ "2", Date >= "2019-10-26" & Date <= "2019-11-01" ~ "1", Date >= "2019-11-02" & Date <= "2019-11-15" ~ "2", Date >= "2019-11-16" & Date <= "2019-12-31" ~ "1", Date >= "2020-01-01" & Date <= "2020-08-31" ~ "0", Date >= "2020-09-01" & Date <= "2020-09-15" ~ "1", Date >= "2020-09-16" & Date <= "2020-09-20" ~ "2", Date >= "2020-09-21" & Date <= "2020-10-02" ~ "3", Date >= "2020-10-03" & Date <= "2020-10-11" ~ "2", Date >= "2020-10-12" & Date <= "2020-10-18" ~ "1", Date >= "2020-10-19" & Date <= "2020-10-31" ~ "2", Date >= "2020-11-01" & Date <= "2020-11-06" ~ "1", Date >= "2020-11-07" & Date <= "2020-11-21" ~ "2", Date >= "2020-11-22" & Date <= "2020-12-31" ~ "2", Date >= "2021-01-01" & Date <= "2021-08-31" ~ "0")))
-jojo <- mutate(jojo, Hunting = case_when(Huntpressure == 1 ~ "yes", Huntpressure == 2 ~ "yes", Huntpressure == 3 ~ "yes", Huntpressure == 0 ~ "no"))
-View(jojo)
-```
-
-```{r}
-#Global movement analysis, 2019-2021
-PLOT1 <- ggplot(jojo, aes(X, Y)) + geom_point(aes(color = "orange"), show.legend = FALSE) 
-PLOT1
-jojo_sf <- st_as_sf(jojo, coords = c("X", "Y"), crs = 2056)
-jojo_smry <- summarise(jojo_sf)
-jojo_mcp <- st_convex_hull(jojo_smry)
-df_hull2 <- jojo %>% select(X,Y)
-c.hull2 <- chull(df_hull2)  #Calculates convex hull#
-c.hull3 <- c(c.hull2, c.hull2[1])
-chull.coords <- df_hull2[c.hull3 ,]
-chull.poly <- Polygon(chull.coords, hole=F)  #From the package sp
-chull.area <- chull.poly@area
-chull.area #The home range of jojo was 158968020 m2 (2019-2021)
-
-regio_map <- terra::rast("regio_map.tif")
-plot(regio_map)
-map1 <- tm_shape(regio_map) + tm_rgb() + tm_shape(jojo_mcp) + tm_polygons(col = "orange",alpha = 0.3,border.col = "red") + tm_layout(main.title = "Global distribution map")
-map1
-```
-
-```{r}
-#isolating 2020 -> depending on the analysis, I will only use 2020 as it is the only entire year I have. 
-
-jojo2020 <- filter(jojo, Year == 2020)
-View(jojo2020)
-
-ggplot(jojo2020) + geom_point(mapping = aes(X, Y, colour = Month))
-```
-
-```{r}
-#Analyse of elevation, 2020
-
-ggplot(data = jojo2020) +geom_boxplot(mapping = aes(x = Month, y = Altitude), color = "indianred4") +scale_y_continuous(limits = c(400, 2000)) + ggtitle("Elevation distribution per Month in 2020") + xlab("Month") + ylab("Elevation in meters") + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-
-Density-map was done with ArcGis-Pro.
-
-```{r}
-#Analyzing path, 2020
-
-ggplot(jojo2020, aes(X, Y)) + geom_path(show.legend = FALSE, color = "indianred4") + facet_wrap (~ Month)
-```
-
-```{r}
+```{r, eval = FALSE, echo = TRUE}
 #Analyzing path in 2020 in a more funny way 
 
 p <- ggplot(jojo2020, aes(X, Y)) + geom_path(show.legend = FALSE, mapping = aes(color = "indianred4")) + transition_time(Date) + labs(title = "Date : {frame_time}")
@@ -423,77 +515,9 @@ path2020 <- animate(p, duration = 120, render = gifski_renderer())
 anim_save("jojo_path2020.gif", path2020)
 ```
 
-```{r}
-#Land cover analysis : what is where and where was the wild boar, 2020
-
-jojo_sf <- st_as_sf(jojo2020, coords = c("X", "Y"), crs = 2056)
-View(jojo_sf)
-
-land_cover <- read_sf("land_cover.gpkg")
-
-head(land_cover)
-
-summary(land_cover)
-
-land_cover <- mutate (land_cover, Landcover = as.factor(case_when(HAUPTKATEGORIE_DE == "Streueflächen" ~ "Litter surfaces", HAUPTKATEGORIE_DE == "Hecken-, Feld- und Ufergehölze" ~ "Hedges, fields and riverbank woods", HAUPTKATEGORIE_DE == "Baum, überlagernd Fläche" ~ "Tree, overlaying areas", HAUPTKATEGORIE_DE == "Dauerweiden" ~ "Permanent pastures", HAUPTKATEGORIE_DE == "Dauerwiesen" ~ "Permanent meadows", HAUPTKATEGORIE_DE == "Sömmerungsfläche" ~ "Summer pastures", HAUPTKATEGORIE_DE == "Wald" ~ "Forests", HAUPTKATEGORIE_DE == "Ackerfläche" ~"Cropland", HAUPTKATEGORIE_DE == "Flächen ausserhalb der LN" ~ "Areas outside LN", HAUPTKATEGORIE_DE == "Übrige Flächen innerhalb der LN" ~ "Other areas inside LN")))
-
-land_cover <- mutate (land_cover, Maincover = as.factor(case_when(HAUPTKATEGORIE_DE == "Streueflächen" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Hecken-, Feld- und Ufergehölze" ~ "Hedges, field and riverbank woods", HAUPTKATEGORIE_DE == "Baum, überlagernd Fläche" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Dauerweiden" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Dauerwiesen" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Sömmerungsfläche" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Wald" ~ "Forest", HAUPTKATEGORIE_DE == "Ackerfläche" ~"Grassland areas", HAUPTKATEGORIE_DE == "Flächen ausserhalb der LN" ~ "Grassland areas", HAUPTKATEGORIE_DE == "Übrige Flächen innerhalb der LN" ~ "Grassland areas")))
-
-View(land_cover)
-
-unique(land_cover$Landcover)
-
-ggplot(land_cover) + geom_sf(aes(fill = Landcover)) + scale_fill_brewer(palette = "Paired")
-
-ggplot(land_cover) + geom_sf(aes(fill = Landcover)) + scale_fill_brewer(palette = "Paired") + geom_sf(data=jojo_sf, color = "darkorange", show.legend = FALSE)
-
-ggplot(land_cover) + geom_sf(aes(fill = Maincover)) + scale_fill_brewer(palette = "YlGn")
-
-ggplot(land_cover) + geom_sf(aes(fill = Maincover)) + scale_fill_brewer(palette = "YlGn") + geom_sf(data=jojo_sf, color = "darkorange", show.legend = FALSE)
-```
-
-```{r}
-#Land cover use, 2020
-
-jojo_join <- st_join(jojo_sf, land_cover)
-
-View(jojo_join)
 
 
 
-#Main cover use per month
-
-jojo_maincover <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Month, Maincover) %>% group_by(Month, Maincover) %>% count() %>% ungroup %>% group_by(Month) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate(Maincover = fct_reorder(Maincover, n, sum, desc = TRUE))
-
-View(jojo_maincover)
-
-ggplot(na.omit(jojo_maincover), aes(Month, Percentage, fill = Maincover)) + geom_col(width = 0.3) + theme_gray() + labs(title = "Use of land cover per Month", subtitle = "Only showing the most common categories") + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")) + geom_bar(aes(Month, Percentage, fill= Maincover), colour="black", stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_fill_brewer(palette = "YlGn")
-
-aggregate(Percentage ~ Maincover, FUN=mean, data = jojo_maincover) # 50.5% Forest, 35.7% Grassland, 0,3% Hedges
-1-0.505-0.356-0.003 #13.6% NA
-
-#Detailed cover use per month
-
-jojo_landcover <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Month, Landcover) %>% group_by(Month, Landcover) %>% count() %>% ungroup %>% group_by(Month) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate (Landcover = fct_reorder(Landcover, n, sum, desc = TRUE))
-
-View(jojo_landcover)
-
-ggplot(na.omit(jojo_landcover), aes(Month, Percentage, fill = Landcover)) + geom_col(width = 0.3) + theme_gray() + labs(title = "Use of land cover per Month") + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")) + geom_bar(aes(Month, Percentage, fill= Landcover), colour="black", stat="identity") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_fill_brewer(palette = "YlGn")
-
-aggregate(Percentage ~ Landcover, FUN=mean, data = jojo_landcover) 
-# 50.5% Forest, 23.7% Summer pastures, 7.7% Permanent meadows, 4.1% Permanent pastures, 0.4% Tree, overlaying areas, 0.3% Hedges, 0.2% Litter surfaces
-1-0.505-0.237-0.076-0.041-0.004-0.003-0.002 # 13.2% NA
-```
-
-```{r}
-#Main land cover use depending on day time and month, 2020
-
-jojo_mc_daytime <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Month, Daytime, Maincover) %>% group_by(Month,Daytime, Maincover) %>% count() %>% ungroup %>% group_by(Month, Daytime) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate(Maincover = fct_reorder(Maincover, n, sum, desc = TRUE))
-
-View(jojo_mc_daytime)
-
-ggplot(na.omit(jojo_mc_daytime), aes(Daytime, Percentage, fill = Maincover)) + geom_col(width = 0.3) + facet_wrap (~ Month) + geom_bar(aes(Daytime, Percentage, fill= Maincover), colour="black", stat="identity") + scale_fill_brewer(palette = "YlGn")
-```
 
 ```{r}
 #Main land cover use depending on hunting, 2020
@@ -531,12 +555,4 @@ aggregate(Speed ~ Huntpressure, FUN=mean, data = jojo)
 
 ```
 
-```{r}
-#Speed depending on land cover use, 2020
 
-View(jojo_join)
-
-ggplot(na.omit(jojo_join)) + geom_boxplot(mapping = aes(x = Landcover, y = Speed), color = "indianred4") + scale_y_continuous(limits = c(0,30)) + scale_x_discrete(limits = c("Forests", "Permanent meadows", "Permanent pastures", "Summer pastures", "Tree, overlaying areas", "Hedges, fields and riverbank woods")) + ggtitle("Speed depending on Landcover") + xlab("Landcover") + ylab("Speed in m/min")+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-aggregate(Speed ~ Landcover, FUN=mean, data = jojo_join)
-```
