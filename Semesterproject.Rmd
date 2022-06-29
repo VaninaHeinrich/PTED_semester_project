@@ -69,7 +69,7 @@ hunting on his habits?
 
 ## Material and Methods
 
-#### #Data set
+###Data set
 
 The data set used in this project comes from the Forest and Nature
 Department of the canton of Fribourg. In September 2019, a male wild
@@ -90,7 +90,7 @@ defined by X and Y coordinates according to the Swiss coordinate system
 -   X: X coordinate
 -   Y: Y coordinate
 
-#Preprocessing
+###Preprocessing
 
 This data set required some additional columns derived from the base
 file data to allow for further analysis to answer the questions outlined
@@ -146,22 +146,32 @@ Some analyses could only be done with the year 2020, the only full year of data.
 ##Methods
 I would like to point out that all of the methods described below can be applied to other similar data sets. These same manipulations will be used to study the movements of other wild boars in this same region in a future study. 
 
-#Global analysis of the home range
+###Global analysis of the home range
 Wild boars are territorial. In order to understand the extent of the male boar's territory in this study, a visual analysis of its presence was performed. I performed a mcp derived from the location points of this boar to identify its home range. For this purpose, the function st_convex_hull has been applied. It takes a point cloud as input and draws a convex hull around the most distant vertices. The area was then calculated using the chull.area function and compared to the results obtained on ArcGis Pro for validation. The home range was analysed for all the data from 2019 to 2021
 
 The altitude at which this boar was located is an important element considering the region in which it is located. Therefore, a boxplot analysis was performed to see the average elevation the boar was located at as a function of the months in 2020. 
 
-#Density and path
+###Density and path
 To visualize the areas where wild boar were most often (high density of presence), an analysis via ArcGis Pro was performed by Kernel Density approach. Following this result, and in order to understand if these areas correspond to areas where the wild boar stayed for a long time or if it came back all the time, an analysis of the path by ggplot with the geom_path function was performed for each month in 2020.
 
-####Land cover and use of it
+###Land cover and use of it
 With the help of ArcGis Pro, a geopackage regrouping the data of the departements of agriculture and forests of the canton of Fribourg for the year 2020 has been created. This was then imported into R-studio. A column was added with the translation in English of the different types of surfaces for a better understanding. By analyzing the different types of surfaces and thinking about the behavior that a wild boar could have in them, I decided to create three surface overclasses: grassland areas which includes meadows, pastures and other rather open surfaces, forests and finally the surfaces corresponding to woodlands outside forests (Hedges-, fields- and riverbank woods). To facilitate the analysis of the data, I decided to work only with the main surface categories as well as the surface classes I created. For elements requiring detail such as a particular field, I worked with ArcGis Pro. The 2020 wild boar data frame and the geopackage data were then combined into a single data frame for further analysis. 
 
+A ggplot was made to visualize the presence of wild boar on the different terrains. 
+
+To find out the exact use of surface types by wild boar, the percentage of location points present in each surface type was calculated. This manipulation was then refined to identify the type of surface used according to the time of day and also according to the months. 
+
+###Activity patterns
+The speed of the boar was used as a basis for analyzing its activity rate. The GPS collar was programmed to transmit its position once an hour during the night from 6:00 p.m. to 6:00 a.m. and then once at noon, based on the boar's nighttime activity. In order to verify this, two subsets were created: one for the day and one for the night. The average of the two subsets was calculated and then they were compared.  For a better visualization, a boxplot was made. A day/night comparison was made by boxplot according to the months in 2020. 
+
+Finally, as speed can also depend on the type of surface on which the boar moves, a boxplot analysis of the different speeds according to the type of surface was performed. 
 
 
-####Activity patterns
+###Effect of Hunting
+Thurfjell et al. demonstrated in 2013 that hunting had an influence on boar movement speed. To understand the influence of hunting on this male boar, a boxplot analysis of travel speeds by hunting pressure was performed. 
 
-####Effet of Hunting
+To analyze whether hunting also induced a change in the boar's surface type use patterns, the percentage of location points in a surface type as a function of whether hunting occurred was performed. 
+
 
 ## Results
 
