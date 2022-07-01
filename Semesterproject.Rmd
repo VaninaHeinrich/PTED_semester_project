@@ -101,11 +101,12 @@ down in the cooler months with potential snowfall. Areas with high
 density of location points are assumed to be particular sources of food
 for this boar such as corn fields for example. Concerning the use of the
 landcover by this boar, the hypothesis is an important use of forest
-spaces, especially during the day. Finally, in view of the region where
-the boar is located, which is an area with many trails and anthropogenic
-activities, it is assumed that the boar presents mainly a nocturnal
-behavior. Hunting should have an influence on its movements and its use
-of the landcover.
+spaces, especially during the day, and also a variation in landcover use
+depending on season as shown by Morelle and Lejeune (2015). Finally, in
+view of the region where the boar is located, which is an area with many
+trails and anthropogenic activities, it is assumed that the boar
+presents mainly a nocturnal behavior. Hunting should have an influence
+on its movements and its use of the landcover.
 
 ## Material and Methods
 
@@ -402,7 +403,7 @@ ggplot(data = jojo) +geom_boxplot(mapping = aes(x = Monthyear, y = Altitude), co
 ```
 
 ```{r, }
-aggregate(Altitude~Month, FUN = mean, data = jojo)
+aggregate(Altitude~Monthyear, FUN = mean, data = jojo)
 ```
 
 Table 1 : Mean altitude for each month between 2019 and 2021.
@@ -436,7 +437,9 @@ presence in the forest did not vary much between months. Its presence in
 summer pastures was more important in May, June and July 2020 than in
 the other months. In January 2020, about 20% of the wild boar were
 located in areas not identified in the available geopackage compared to
-10% in December 2020 (Figure 7).
+10% in December 2020 (Figure 7). The location points in 2020 were
+located this way : 50.5% Forest, 35.7% Grassland, 0,3% Hedges-, fields-
+and riverbank woods, 13,5% NA.
 
 ```{r, fig.cap="Fig 7: Land cover use per month in 2020", fig.align='center'}
 #Land cover analysis : what is where and where was the wild boar, 2020
@@ -599,7 +602,7 @@ better understanding of its habits, its use of the land cover and the
 influence of the hunt on its spatial behavior. The data collected with
 the GPS collar allowed the study of its vertical and horizontal
 migration as well as the visualization of its home range. The results
-show that the boar in this study had a territory of 158.67 m2 which is
+show that the boar in this study had a territory of 158.67 km2 which is
 about five times larger than the territories recorded for male boars
 which range from 4.5 to 30 km2 (Suter & Fischer, 2021). This difference
 could be explained by the hilly topography of the home range of this
@@ -607,26 +610,136 @@ boar. Studies on other wild boars in the same region would allow us to
 establish whether this is an isolated case linked to this individual or
 a generalization for the Pre-Alps region.
 
+One of the hypotheses of this study was to imagine a migration of wild
+boar to lower altitudes during the bad season because of the weather
+conditions and the possible difficulty to find food at higher altitudes
+in winter. The results showed a slight migration to higher elevations in
+spring and early summer of 2020 and then a return to elevations around
+1000m. This trend was not repeated for the year 2021, except for a large
+ascent in July 2021.
+
+One explanation for this would be the sometimes more difficult access at
+higher altitudes. Moreover, the Moléson and Dent de Lys regions are very
+popular hiking areas, making the higher altitudes no more interesting
+from a tranquility point of view than the areas where the wild boar were
+found most of the time. Furthermore, forest cover decreases with
+elevation. Since the wild boar observed here was mainly located in
+forests, the lack of forest cover towards higher elevations could also
+be an explanation for the limits of the animal's vertical migration. The
+years studied may have had meteorological characteristics that could
+have influenced the movements of the boar. However, these were not
+investigated in these analyses. Further analysis of the weather
+conditions during the years of observation may provide more accurate
+answers to the question of whether wild boar move to certain elevations
+rather than others.
+
 **Horizontal migration and land cover use**
 
-correlation with the description in Suter and Graf 2021
+Tracking analysis of the boar in this study showed that the animal was
+regularly traveling back and forth within its home range. Some
+geographic points seemed to be more popular than others and the analysis
+of the density of the location points clearly shows a geographic area
+particularly appreciated by the animal (Figure 4). Analysis of the GIS
+layer of surface cover compared with the location points was not
+sufficient in this study to explain all the location points. When the
+data was collected, the local wildlife ranger was asked to visit some of
+the plots to see what was there. For example, it appears that corn plots
+are not included in the GIS layer, but were particularly popular for
+this wild boar (Figure 9). Much of the data is thus biased because these
+types of plots fall into the NA category (about 13.5%) of our analysis
+and only an on-site analysis could answer questions related to these
+presence points. This indicates the limitation of the technique used in
+this study.
 
-general trend of wild boar to leave the natural habitats and their
-margins between march and july (Gerard et al. 1991)
+The boar in this study spent half of its time in the forest in 2020.
+This is consistent with data collected in other studies and in the
+general literature (Suter & Fischer, 2021). In 1991, Gerard et al.
+described that wild boar in their study in agricultural areas showed a
+tendency to move from their usual habitat areas to new areas between
+March and July. The results obtained in this study show a similar trend.
+In June 2020, the wild boar observed used less forest habitat than in
+other months of the year and increased its use of other areas. From
+March to July, plant growth is significant and moving to agricultural
+land provides an energetic advantage to the animals (Rosell et al.
+2012). These larger out-of-forest excursions during this period could
+therefore have provided a clear advantage to the boar observed in this
+study. However, these results must be put into perspective as from May
+to July 2020, this boar also moved to higher elevations where there is
+less forest cover.
+
+During 2020, the wild boar was primarily located in the forest during
+the day and exited onto other surface types during the night hours. The
+forest provides hiding places and allows the animal to rest in safety
+during day. This correlates with the results of Gerard et al. (1991) who
+showed that natural habitats are more favored during resting times than
+during activity phases.
 
 **Activity patterns**
 
-favour natural habitats more marked during resting times than during
-activity phases (Gerard et al. 1991)
+The boar showed an important nocturnal activity throughout the year and
+never reversed its daily rhythm. This nocturnal activity has also been
+noted in other studies and has been related to the greater anthropogenic
+disturbance during the day, forcing the animal to adapt (Ohashi et al.
+2013; Podgorski et al. 2013). The results of this study are consistent
+with this trend. Indeed, the lower elevation areas are often close to
+dwellings and the area in general is a popular tourist area in both
+winter and summer, implying regular anthropogenic disturbance regardless
+of the season.
 
-Clear nocturnal activity due to anthropogenic disturbance (Ohashi et al.
-2013 ; Podgorski et al. 2013).
+The type of surface in which the animal moved could potentially
+influence its activity. In general, wild boar moved slower on average in
+forests than in grassy areas. This can be explained by the day/night
+bias, as the boar most likely used forest areas for resting, but also by
+the denser vegetation that made movement more difficult. On the other
+hand, this could also be explained by the insecurity linked to open
+areas, forcing the animal to move more quickly in grassy areas.
 
 **Effect of hunting**
 
-nocturnal activity should increase when they are exposed to hunting
-pressure (Keuling et al. 2008 ; Ohashi et al. 2013). Nocturnal activity
-did not increase during hunting season (Brivio et al. 2017).
+Analyses of other publications could not show a trend in the influence
+of hunting on overall boar activity. In 2008, Keuling et al. and Ohashi
+et al. observed an increase in nocturnal activity during hunting. In
+2013, Thurfjell et al. showed, on the contrary, a decrease in nocturnal
+activity during the hunting season. Brivio et al. (2017), on the other
+hand, observed no difference in nighttime activity of wild boars during
+the hunting season in their study. The main difference between these
+studies included the study region. In our study in the Fribourg
+pre-Alps, the overall day and night activity of wild boar increased with
+hunting pressure. The more species were hunted at the same time, the
+more hunters were present in the field. This pressure was reflected in
+the activity of this boar, indicating very clearly the disturbance
+caused to the fauna by the presence of these hunters, even if they were
+not looking for the boar. However, the results of this study do not show
+an increase in boar activity proportional to hunting pressure. In fact,
+hunting pressure category 3 indicates less disturbance than hunting
+pressure category 2. This result must be put into perspective because
+hunting pressure category 3 only concerns 2 weeks per year. In this
+study, this represents 4 weeks spread over almost 2 years of monitoring,
+implying a bias in the results. It might be appropriate to limit the
+number of hunting pressure categories to 3 instead of 4 in order to
+remove this bias.
+
+Hunting can cause space use to be altered from its normal use
+(Scillitani et al. 2020). In this study, wild boar appeared to have
+increased use of forested areas during hunting. This result cannot be
+considered absolute. Indeed, the analysis of the GIS layer showed that a
+part of the parcels could not be attributed and are considered as NA.
+The wildlife warden indicated at the time that some of these plots
+contained corn and other crops. The hunting season is from September to
+December. During this period, migration to forested areas was described
+in other studies (Ballari et al. 2013 ; Massei et al. 1996) and
+migration to agricultural land occurs in the spring and summer, i.e.
+during the non-hunting period. The number of unallocated plots is
+increased in the non-hunting period, corresponding to the spring and
+summer months. Therefore, the migration to forested areas from September
+to December 2020 cannot be attributed solely to hunting pressure. 
+
+## Conclusion
+
+The spatiotemporal use that an animal makes depends on many intrinsic
+and extra-intrinsic reasons. This study did not cover all possible
+aspects and further study would be needed to further understand this
+individual's movements and motivations.
 
 These results were validated by personal visualization and comparison
 with elements found in publications. Some answers were provided by
@@ -636,7 +749,16 @@ observed on the obtained graphs are significant or not. This analysis
 will be carried out in a second time, outside the framework of this
 work.
 
+Finally, this study should be seen as a pre-study. Indeed, the study of
+a single individual does not allow us to draw conclusions for the local
+population, but it does allow us to determine in which direction further
+research could go in a study with more individuals.
+
 ## References
+
+Ballari S.A. & Barrios-Garcia M.N. (2013) : A review of wild boar Sus
+scrofa diet and factors affecting food selection in native and
+introduced ranges. Mammal Rev 44: 124-134. DOI : 10.1111/mam.12015
 
 Brivio F., Grignolio S., Brogi R., Benazzi M., Bertolucci C. & Apollonio
 M. (2017) : An analysis of intrinsic and extrinsic factors affecting the
@@ -647,12 +769,24 @@ Gerard J-F., Cargnelutti, Spitz F., Valet G. & Sardin T. (1991) :
 Habitat use of wild boar in a French agroecosystem from late winter to
 early summer. Acta theriologica 36 (1-2): 119-129.
 
+Johann F., Handschuh M., Linderoth P., Heurich M., Dormann C.F. & Arnold
+J. (2020) : Variability of daily space use in wild boar Sus scrofa.
+Wildlife Biology. DOI : 10.2981/wlb.00609
+
 Keuling O., Stier N. & Roth M. (2008) : How does hunting influence
 activity and spatial usage in wild boar Sus scrofa L. ? Eur. J. Wildl.
 Res 54: 729-737.
 
+Massei G., Genov P.V. & Staines B.W. (1996) : Diet, food availability
+and reproduction of wild boar in a Meditterranean coastal area. Acta
+Theriol 41:307-320.
+
+Morelle K. & Lejeune P. (2015) : Seasonal variations of wild boar Sus
+scrofa distribution in agricultural landscapes : a species distribution
+modelling approach. Eur. J. Wildl. Res. 61: 45-56.
+
 Ohashi H. et al. (2013) : Differences in the activity pattern of the
-wild boar Sus scrofa related to human disturbance. Eur J. Wildl Res 59 :
+wild boar Sus scrofa related to human disturbance. Eur J. Wildl Res 59:
 167-177.
 
 Pelayo A., Quiros-Fernandez F., Casal J. & Vicente J. (2014) : Spatial
@@ -666,15 +800,25 @@ plasticity of wild boar (Sus scrofa) under contrasting conditions of
 human pressure : primeval forest and metropolitan area. J. Mammal. 94:
 109-119.
 
+Rosell C., Navas F. & Romero S. (2012) : Reproduction of wild boar in a
+cropland and coastal wetland area : implications for management. Anim
+Biodivers Conserv 35: 209-2017.
+
+Scillitani L. et al. (2010) : Do intensive drive hunts affect wild boar
+(Sus scrofa) spatial behaviour in Italy ? Some evidences and management
+implications. Eur. J. Wildl. Res. 56: 307-318.
+
 Suter S.M & Fischer C. (2021) : Wildschwein, p .316-139 in : Graf R.F. &
 Fischer C. (2021): Atlas der Säugetiere. Schweiz und Liechtenstein.
 Schweizerische Gesellschaft für Wildtierbiologie SGW, Haupt Verlag,
 Bern.
 
-Thurfjelle H., Spong G. & Ericsson G. (2013) : Effects of hunting on
-wild boar Sus scrofa behaviour. Wildlife Biology 19 : 87-93.
+Thurfjell H., Spong G. & Ericsson G. (2013) : Effects of hunting on wild
+boar Sus scrofa behaviour. Wildlife Biology 19: 87-93.
 
-## R-Code
+## Appendix : 
+
+#### Supplement R-Code
 
 ```{r}
 knitr::opts_chunk$set(eval = FALSE)
