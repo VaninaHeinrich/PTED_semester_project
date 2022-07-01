@@ -49,35 +49,68 @@ confidentially.
 
 ## Introduction and research aims
 
-Wild boars, sus scrofa, are common mammals in Europe. The study of their
-movements and habits is used in particular within the framework of the
-management of their populations but also for the prevention of damage
-caused to agricultural crops. Many studies have been done to understand
-the spatio-temporal behavior of wild boars but none has been published
-on wild boars in the Pre-Alps. The pre-Alps present a particular
-territory due to their steep nature and their landscape coverage.
+Wild boars, sus scrofa, are common mammals in Europe (Suter & Fischer,
+2021). The study of their movements and habits is used in particular
+within the framework of the management of their populations but also for
+the prevention of damage caused to agricultural crops and epidemiology
+management (Pelayo et al. 2014). Studies carried out within the
+framework of the EUROBOAR network initiative have shown that wild boars
+show a great behavioral plasticity and a great adaptability to their
+environment. This characteristic makes the study of this species
+complicated and implies that it must be studied in all environments
+where it is possible to meet it (Brivio et al. 2017). Many studies have
+been done to understand the spatio-temporal behavior of wild boars but
+none has been published on wild boars in the Pre-Alps. The pre-Alps
+present a particular territory due to their steep nature and their
+landscape coverage.
 
 In this study, the movements of a male wild boar located in the Fribourg
-pre-Alps were analyzed over almost two years. The first goal of these
-analyses was to define the animal's home range and its use of it, but
-also to see if landscape aspects (altitude, land cover) influence its
-use of space. The second goal was to analyze its habits and the effect
-of an anthropogenic disturbance (hunting in this case) on its habits.
+pre-Alps (Switzerland) were analyzed over almost two years. The first
+goal of these analyses was to define the animal's home range and its use
+of it. The second goal was to analyze its habits and the effect of an
+anthropogenic disturbance, hunting, on its habits. As Ohashi and
+collegues did in their study in 2013, the intensity of indirect daily
+disturbance caused by human activities was considered as a constant
+element. As hunting occurs only some months of the year and its directed
+toward wild animals, it's considered here as an temporal element that
+can influence the boar's habits.
 
-This study was done in part from a global analysis to a more detailed
-analysis. Four elements guided the analysis with the following
-questions: - The analysis of its general home range: where is the boar
-located? What are the movements it has made and when? Are there
-differences between seasons in its occupation of space? - Analysis of
-areas of high density of presence: did the boar stay in certain places
-for a long time or did it go back and forth? What is present in these
-areas? - Analysis of surface cover: what is found in this boar's home
-range? How did it use the surface cover? What is found in areas of high
-density presence? - Analysis of its habits: when is it most active? Are
-there differences in the use of ground cover? What is the impact of
-hunting on his habits?
+The study of this data set was done from a global analysis to a more
+detailed analysis. Four elements guided the analysis with the following
+questions:
+
+-   Analysis of the general home range: where is the boar located? What
+    are the movements it has made and when? Are there differences
+    between seasons in its occupation of space?
+
+-   Analysis of areas of high density of presence: did the boar stay in
+    certain places for a long time or did it go back and forth? What is
+    present in these areas?
+
+-   Analysis of surface cover: what is found in this boar's home range?
+    How did it use the surface cover? What is found in areas of high
+    density presence?
+
+-   Analysis of its habits: when is it most active? Are there
+    differences in the use of ground cover? What is the impact of
+    hunting on his habits?
+
+Due to the hilly topography and high elevations, wild boar are expected
+to move to higher elevations on average in the summer months and then
+down in the cooler months with potential snowfall. Areas with high
+density of location points are assumed to be particular sources of food
+for this boar such as corn fields for example. Concerning the use of the
+landcover by this boar, the hypothesis is an important use of forest
+spaces, especially during the day. Finally, in view of the region where
+the boar is located, which is an area with many trails and anthropogenic
+activities, it is assumed that the boar presents mainly a nocturnal
+behavior. Hunting should have an influence on its movements and its use
+of the landcover.
 
 ## Material and Methods
+
+Spatiotemporal analysis of the data in this study was performed with
+R-Studio version 2022.02.3 and ArcGis Pro version 2.8.3.
 
 ```{r}
 #import the data
@@ -86,20 +119,22 @@ jojo <- read_delim("20220504_sanglier_SFN.csv", delim = ";", escape_double = FAL
 
 #Some elevation points are upon 2000 which is impossible as the highest point in the region has an elevation of 2014m, therefore, all the points higher than 2000 were taken away. Same for points deeper than 600m
 
-jojo <- jojo %>%  filter(Altitude > 600 & Altitude < 2000 )
+jojo <- jojo %>%  filter(Altitude > 500 & Altitude < 2000 )
 
 ```
 
 ### Data set
 
 The data set used in this project comes from the Forest and Nature
-Department of the canton of Fribourg. In September 2019, a male wild
-boar was captured in the Fribourg pre-Alps and fitted with a GPS collar.
-This collar transmitted the position of the animal every hour from 6pm
-to 6am and then once at noon. The collar was programmed by the service
-based on the literature mentioning that the wild boar is a nocturnal
-animal. Location data could thus be obtained until July 2021. The animal
-then suddenly disappeared and so did the GPS transmission.
+Department of the canton of Fribourg. The 3rd september 2019, a male
+wild boar was captured in the Fribourg pre-Alps and fitted with a GPS
+collar. This collar transmitted the position of the animal every hour
+from 6pm to 6am and then once at noon. The collar was programmed by the
+Nature and Forest departement based on the fact that the wild boar can
+be predominantly nocturnal in areas with anthropic disturbance (Ohashi
+et al., 2013 ; Podgorski et al., 2013) Location data could thus be
+obtained until July 2021. The animal then suddenly disappeared and so
+did the GPS transmission.
 
 The data set contains 9431 lines, each corresponding to a location
 defined by X and Y coordinates according to the Swiss coordinate system
@@ -155,14 +190,14 @@ jojo2020 <- filter(jojo, Year == 2020)
 
 This data set required some additional columns derived from the base
 file data to allow for further analysis to answer the questions outlined
-in the introduction to this project.A first visual analysis of the file
+in the introduction to this project. A first visual analysis of the file
 in excel was done to observe the data.
 
 The analysis of the "Altitude" column revealed values that could not
 correspond to the region where the boar was located. Indeed, the highest
 point in the region is at 2014m (Dent de Lys) and some location points
 exceeded this value. These points were removed. The same was done for
-the location points below 600m altitude.
+the location points below 500m altitude.
 
 ```{r, fig.cap="Fig 1: Map of the region",fig.align='center'}
 regio_map <- terra::rast("regio_map.tif")
@@ -171,52 +206,51 @@ plot(regio_map)
 
 The dates were analyzed and a subclassification by months and years was
 done. These data were added as new columns to the available data. Date
-and time were also merged together in a new column.A "Daytime" column
-has been added. This one is based on the "Timelag" column. If the time
-difference is less than 65 minutes, it concerns measurements taken at
-night (from 6pm to 6am), if this difference is greater than 360 minutes,
-it concerns measurements taken during the day (between 6am and 6pm). The
-column therefore contains the information Day or Night.
+and time were also merged together in a new column. a "Timelag" column
+was created which indicates the time elapsed between two locations,
+based on the "Datetime" column created during the previous manipulation
+of the "Date" and "Time" data. A "Daytime" column has been added. This
+one is based on the "Timelag" column. If the time difference is less
+than 65 minutes, it concerns measurements taken at night (from 6pm to
+6am), if this difference is greater than 360 minutes, it concerns
+measurements taken during the day (between 6am and 6pm). The column
+therefore contains the information Day or Night.
 
 In order to calculate the activity pattern of this boar, I decided to
 base my calculations on its speed. The speed is calculated by the
-distance traveled in a certain time lapse. For that, a "Timelag" column
-was created which indicates the time elapsed between two locations,
-based on the "Datetime" column created during the previous manipulation
-of the "Date" and "Time" data. Then, a "steplength" column was created.
-This one indicates the distance between two rows, i.e. two location
-points. Finally, a "Speed" column has been created. This one is the
-result of the "Steplength" column divided by the "Timelag" column (Speed
-= Steplength/Timelag).
+distance traveled in a certain time lapse. A "steplength" column was
+created. This one indicates the distance between two rows, i.e. two
+location points. Finally, a "Speed" column has been created. This one is
+the result of the "Steplength" column divided by the "Timelag" column.
 
 Finally, to analyze the influence of hunting on the activity of this
 boar, two new columns were created. The first one is the hunting
 pressure which was evaluated according to the number of species hunted
 at the same time on a given date :
 
-Wild boar
+**Wild boar**
 
-2019 - 01.09 until 31.12
+-   2019 - 01.09 until 31.12
 
-2020 - 01.09 until 31.12
+-   2020 - 01.09 until 31.12
 
-Roe deer
+**Roe deer**
 
-2019 - 16.09 until 12.10
+-   2019 - 16.09 until 12.10
 
-2020 - 16.09 until 12.10
+-   2020 - 16.09 until 12.10
 
-Chamois
+**Chamois**
 
-2019 - 16.09 until 28.09
+-   2019 - 16.09 until 28.09
 
-2020 - 21.09 until 03.10
+-   2020 - 21.09 until 03.10
 
-Deer
+**Deer**
 
-2019 - 14.10 until 26.10 and 02.11 until 16.11
+-   2019 - 14.10 until 26.10 and 02.11 until 16.11
 
-2020 - 19.10 until 31.10 and 07.11 until 21.11
+-   2020 - 19.10 until 31.10 and 07.11 until 21.11
 
 This information was provided by the Forest and Nature Department of the
 Canton of Fribourg. Based on this information, four categories were
@@ -234,6 +268,9 @@ An additional column was created to indicate whether or not hunting was
 taking place, based on the hunting pressure (0 = no hunting, 1/2/3 =
 hunting).
 
+The hunting pressure category 3 corresponds only to two week in the
+year.
+
 Some analyses could only be done with the year 2020, the only full year
 of data. This is why a second data_frame was created with only the
 points of 2020, subset of the original data frame.
@@ -247,47 +284,49 @@ future study.
 
 ### Global analysis of the home range
 
-Wild boars are territorial. In order to understand the extent of the
-male boar's territory in this study, a visual analysis of its presence
-was performed. I performed a mcp derived from the location points of
-this boar to identify its home range. For this purpose, the function
-st_convex_hull has been applied. It takes a point cloud as input and
-draws a convex hull around the most distant vertices. The area was then
-calculated using the chull.area function and compared to the results
-obtained on ArcGis Pro for validation. The home range was analysed for
-all the data from 2019 to 2021
+Wild boars are territorial (Suter & Fischer, 2021). In order to
+understand the extent of the male boar's territory in this study, a
+visual analysis of its presence was performed. I performed a mcp derived
+from the location points of this boar to identify its home range. For
+this purpose, the function st_convex_hull has been applied. It takes a
+point cloud as input and draws a convex hull around the most distant
+vertices. The area was then calculated using the chull.area function and
+compared to the results obtained on ArcGis Pro for validation. The home
+range was analysed for all the data from 2019 to 2021
 
 The altitude at which this boar was located is an important element
 considering the region in which it is located. Therefore, a boxplot
-analysis was performed to see the average elevation the boar was located
-at as a function of the months in 2020.
+analysis was performed to see the altitude the boar was located at as a
+function of the months in 2020.
 
 ### Density and path
 
 To visualize the areas where wild boar were most often (high density of
-presence), an analysis via ArcGis Pro was performed by Kernel Density
-approach. Following this result, and in order to understand if these
-areas correspond to areas where the wild boar stayed for a long time or
-if it came back all the time, an analysis of the path by ggplot with the
-geom_path function was performed for each month in 2020.
+location points), an analysis via ArcGis Pro was performed by Kernel
+Density approach. Following this result, and in order to understand if
+these areas correspond to areas where the wild boar stayed for a long
+time or if it came back all the time, an analysis of the path by ggplot
+with the geom_path function was performed for each month in 2020.
 
 ### Land cover and use of it
 
 With the help of ArcGis Pro, a geopackage regrouping the data of the
 departements of agriculture and forests of the canton of Fribourg for
-the year 2020 has been created. This was then imported into R-studio. A
-column was added with the translation in English of the different types
-of surfaces for a better understanding. By analyzing the different types
-of surfaces and thinking about the behavior that a wild boar could have
-in them, I decided to create three surface overclasses: grassland areas
-which includes meadows, pastures and other rather open surfaces, forests
-and finally the surfaces corresponding to woodlands outside forests
-(Hedges-, fields- and riverbank woods). To facilitate the analysis of
-the data, I decided to work only with the main surface categories as
-well as the surface classes I created. For elements requiring detail
-such as a particular field, I worked with ArcGis Pro. The 2020 wild boar
-data frame and the geopackage data were then combined into a single data
-frame for further analysis.
+the year 2020 has been created. Not all parcels could be assigned to a
+surface category due to lack of the GIS layers. This was then imported
+into R-studio. As the GIS layer contained only categories in french or
+german, a column was added with the translation in English of the
+different types of surfaces for a better understanding. By analyzing the
+different types of surfaces and thinking about the behavior that a wild
+boar could have in them, I decided to create three surface overclasses:
+grassland areas which includes meadows, pastures and other rather open
+surfaces, forests and finally the surfaces corresponding to woodlands
+outside forests (Hedges-, fields- and riverbank woods). To facilitate
+the analysis of the data, I decided to work only with the main surface
+categories as well as the surface classes I created. For elements
+requiring detail such as a particular field, I worked with visualisation
+in ArcGis Pro. The 2020 wild boar data frame and the geopackage data
+were then combined into a single data frame for further analysis.
 
 A ggplot was made to visualize the presence of wild boar on the
 different terrains.
@@ -301,16 +340,16 @@ according to the time of day and also according to the months.
 
 The speed of the boar was used as a basis for analyzing its activity
 rate. The GPS collar was programmed to transmit its position once an
-hour during the night from 6:00 p.m. to 6:00 a.m. and then once at noon,
-based on the boar's nighttime activity. In order to verify this, two
-subsets were created: one for the day and one for the night. The average
-of the two subsets was calculated and then they were compared. For a
-better visualization, a boxplot was made. A day/night comparison was
-made by boxplot according to the months in 2020.
+hour during the night from 6:00 p.m. to 6:00 a.m. and then once at noon.
+In order to verify this, two subsets were created: one for the day and
+one for the night. The average of the two subsets was calculated and
+then they were compared. For a better visualization, a boxplot was made.
+A day/night comparison was made by boxplot according to the months in
+2020.
 
 Finally, as speed can also depend on the type of surface on which the
-boar moves, a boxplot analysis of the different speeds according to the
-type of surface was performed.
+boar moves (behaviour adapted to land cover), a boxplot analysis of the
+different speeds according to the type of surface was performed.
 
 ### Effect of Hunting
 
@@ -348,23 +387,25 @@ map1 <- tm_shape(regio_map) + tm_rgb() + tm_shape(jojo_mcp) + tm_polygons(col = 
 map1
 ```
 
-The analysis of the altitude at which the boar were located in 2020
-shows that a vertical migration to higher altitudes took place in spring
-until June. From July onwards, it can be observed that the boar again
-descended to lower altitudes. For the rest of the year 2020, the boar
-was located at approximately the same altitudes (Figure 3, Table 1).
+The analysis of the altitude at which the boar were located from 2019 to
+2021 shows that a vertical migration to higher altitudes took place in
+spring 2020 until June 2020. From July 2020 onwards, it can be observed
+that the boar again descended to lower altitudes. For the rest of the
+year 2020, the boar was located at approximately the same altitudes, In
+2021, the boar was located within the same altitude range until July
+2021 were i went up to higher altitudes (Figure 3, Table 1).
 
-```{r, fig.cap="Fig 3: Altitude were the wild boar was depending on the month in 2020", fig.align='center'}
-#Analyse of elevation, 2020
+```{r, fig.cap="Fig 3: Altitude were the wild boar was, depending on the months and years", fig.align='center'}
+#Analyse of elevation, 2019-2020
 
-ggplot(data = jojo2020) +geom_boxplot(mapping = aes(x = Month, y = Altitude), color = "indianred4") +scale_y_continuous(limits = c(400, 2000)) + xlab("Month") + ylab("Elevation in meters") + scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggplot(data = jojo) +geom_boxplot(mapping = aes(x = Monthyear, y = Altitude), color = "indianred4") +scale_y_continuous(limits = c(400, 2000)) + xlab("Month and year") + ylab("Altitude in meters") + scale_x_discrete(limits=c("September 2019", "October 2019", "November 2019", "December 2019", "January 2020", "February 2020", "March 2020", "April 2020", "May 2020", "June 2020", "July 2020", "August 2020", "September 2020", "October 2020", "November 2020", "December 2020", "January 2021", "February 2021", "March 2021", "April 2021", "May 2021", "June 2021", "July 2021"))+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-```{r}
-aggregate(Altitude~Month, FUN = mean, data = jojo2020)
+```{r, }
+aggregate(Altitude~Month, FUN = mean, data = jojo)
 ```
 
-Table 1 : Mean altitude for each month in 2020
+Table 1 : Mean altitude for each month between 2019 and 2021.
 
 ### Horizontal migration and land cover use in 2020
 
@@ -395,7 +436,7 @@ presence in the forest did not vary much between months. Its presence in
 summer pastures was more important in May, June and July 2020 than in
 the other months. In January 2020, about 20% of the wild boar were
 located in areas not identified in the available geopackage compared to
-10% in December 2020.
+10% in December 2020 (Figure 7).
 
 ```{r, fig.cap="Fig 7: Land cover use per month in 2020", fig.align='center'}
 #Land cover analysis : what is where and where was the wild boar, 2020
@@ -453,7 +494,7 @@ ggplot(na.omit(jojo_landcover), aes(Month, Percentage, fill = Landcover)) + geom
 
 The wild boar were primarily located in the forest during the day
 (between 6:00 am and 6:00 pm) and diversified the areas where they were
-located at night.
+located at night (Figure 8).
 
 ```{r, fig.cap="Fig 8: Land cover use depending on daytime for each month in 2020", fig.align='center'}
 #Main land cover use depending on day time and month, 2020
@@ -463,13 +504,21 @@ jojo_mc_daytime <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Month, Daytime
 ggplot(na.omit(jojo_mc_daytime), aes(Daytime, Percentage, fill = Maincover)) + geom_col(width = 0.3) + facet_wrap (~ Month) + geom_bar(aes(Daytime, Percentage, fill= Maincover), colour="black", stat="identity") + scale_fill_brewer(palette = "YlGn")
 ```
 
+An analysis on ArcGis Pro of areas with many location points showed that
+the GIS layer provided by the Departement for agriculture did not
+identify all areas (Figure 9).
+
+```{r, fig.cap="Fig 9: Some location points could not be attributed to a specific land cover with the provided GIS layer", fig.width=50, fig.align='center'}
+knitr::include_graphics("density_corn1.PNG")
+```
+
 ### Activity patterns
 
 The speed of the boar does not show a big visual difference from month
-to month. It averages 0.64 m/min during the day (6am to 6pm) and 5.04
-m/min at night (6pm to 6am).
+to month (Figure 10). It averages 0.64 m/min during the day (6am to 6pm)
+and 5.04 m/min at night (6pm to 6am).
 
-```{r, fig.cap="Fig 9: Speed depending on daytime", fig.align='center'}
+```{r}
 #Analyse of activity patterns, based on the speed (in meters/minute), 2019-2021
 
 #summary(jojo)
@@ -482,15 +531,15 @@ jojo_night <- subset(jojo, Daytime == "Night", select=c(X, Y, Date, Time, Timela
 #summary(jojo_day) #mean speed = 0.64 m/min
 #summary(jojo_night) #mean speed = 5.04 m/min 
 
-ggplot(na.omit(jojo)) + geom_boxplot(mapping = aes(Daytime, Speed), color = "indianred4") + scale_y_continuous(limits = c(0, 30)) + ggtitle("Speed depending on Daytime") + xlab("Daytime") + ylab("Speed in m/min")
+#ggplot(na.omit(jojo)) + geom_boxplot(mapping = aes(Daytime, Speed), color = "indianred4") + scale_y_continuous(limits = c(0, 30)) + ggtitle("Speed depending on Daytime") + xlab("Daytime") + ylab("Speed in m/min")
 ```
 
-```{r, fig.cap="Fig 10: Speed depending on daytime for each month", fig.align='center'}
+```{r, fig.cap="Fig 10: Speed depending on daytime for each month in 2020", fig.align='center'}
 ggplot(na.omit(jojo)) +geom_boxplot(mapping = aes(x = Daytime, y = Speed), color = "indianred4") +scale_y_continuous(limits = c(0, 30)) + ggtitle("Speed depending on Daytime per Month") + xlab("Month") + ylab("Speed in m/min") + facet_wrap(~Month)
 ```
 
 The boar moved slower on average in the forest than in other surface
-types.
+types except for litter surfaces (Table 2).
 
 ```{r}
 #Speed depending on land cover use, 2020
@@ -500,11 +549,16 @@ types.
 aggregate(Speed ~ Landcover, FUN=mean, data = jojo_join)
 ```
 
+Table 2 : Mean speed for each landcover category in 2020.
+
+### 
+
 ### Effect of hunting
 
-Boxplot results show greater forest use during the hunting season (Figure 11). Grassland use is similar between periods. 
+Boxplot results show greater forest use during the hunting season in
+2020 (Figure 11). Grassland use is similar between periods.
 
-```{r, fig.cap="Fig 11: Landcover use depending on hunting", fig.align='center'}
+```{r, fig.cap="Fig 11: Landcover use depending on hunting in 2020", fig.align='center'}
 #Main land cover use depending on hunting, 2020
 
 jojo_mc_hunting <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Hunting, Maincover) %>% group_by(Hunting, Maincover) %>% count() %>% ungroup %>% group_by(Hunting) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate(Maincover = fct_reorder(Maincover, n, sum, desc = TRUE))
@@ -512,24 +566,71 @@ jojo_mc_hunting <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Hunting, Mainc
 ggplot(na.omit(jojo_mc_hunting), aes(Hunting, Percentage, fill = Maincover)) + geom_col(width = 0.3) + geom_bar(aes(Hunting, Percentage, fill= Maincover), colour="black", stat="identity") + scale_fill_brewer(palette = "YlGn")
 ```
 
+The boxplots show an increase in velocity when hunting pressure is
+present compared to a period without hunting (Figure 12). The mean of
+speed increased during the day and during the night (Table 3, Table 4).
 
-
-```{r}
+```{r, fig.cap="Fig 12: Speed depending on the hunting pressure in 2019 and 2020", fig.align='center'}
 #Speed depending on hunting pressure
 
-ggplot(data = jojo) + geom_boxplot(mapping = aes(x = Huntpressure, y = Speed), color = "indianred4") + scale_y_continuous(limits = c(0,30)) + ggtitle("Speed depending on Huntingpressure") + xlab("Hunting pressure") + ylab("Speed in m/min") + scale_x_discrete(limits=c("0", "1", "2", "3"))
-
-aggregate(Speed ~ Huntpressure, FUN=mean, data = jojo)
-
+ggplot(data = jojo) + geom_boxplot(mapping = aes(x = Huntpressure, y = Speed), color = "indianred4") + scale_y_continuous(limits = c(0,30)) + xlab("Hunting pressure") + ylab("Speed in m/min") + scale_x_discrete(limits=c("0", "1", "2", "3"))
 ```
+
+```{r}
+aggregate(Speed ~ Huntpressure, FUN=mean, data = jojo_day)
+```
+
+Table 3 : Mean speed during day depending on hunting pressure from 2019
+to 2021.
+
+```{r}
+aggregate(Speed ~ Huntpressure, FUN=mean, data = jojo_night)
+```
+
+Table 4 : Mean speed during night depending on hunting pressure from
+2019 to 2021.
 
 ## Discussion
 
-The study of the movements of the wild boar in this study allowed a better understanding of its habits, its use of the land cover and the influence of the hunt on its spatial behavior. The data collected with the GPS collar allowed the study of its vertical and horizontal migration as well as the visualization of its home range. The results show that the boar in this study had a territory of 158.67 m2 which is about five times larger than the territories recorded for male boars which range from 4.5 to 30 km2 (Suter & Fischer, 2021). This difference could be explained by the hilly topography of the home range of this boar. Studies on other wild boars in the same region would allow us to establish whether this is an isolated case linked to this individual or a generalization for the Pre-Alps region. 
+**Home range and vertical migration**
 
+The study of the movements of the wild boar in this study allowed a
+better understanding of its habits, its use of the land cover and the
+influence of the hunt on its spatial behavior. The data collected with
+the GPS collar allowed the study of its vertical and horizontal
+migration as well as the visualization of its home range. The results
+show that the boar in this study had a territory of 158.67 m2 which is
+about five times larger than the territories recorded for male boars
+which range from 4.5 to 30 km2 (Suter & Fischer, 2021). This difference
+could be explained by the hilly topography of the home range of this
+boar. Studies on other wild boars in the same region would allow us to
+establish whether this is an isolated case linked to this individual or
+a generalization for the Pre-Alps region.
 
+**Horizontal migration and land cover use**
 
-These results were validated by personal visualization on R. A detailed
+correlation with the description in Suter and Graf 2021
+
+general trend of wild boar to leave the natural habitats and their
+margins between march and july (Gerard et al. 1991)
+
+**Activity patterns**
+
+favour natural habitats more marked during resting times than during
+activity phases (Gerard et al. 1991)
+
+Clear nocturnal activity due to anthropogenic disturbance (Ohashi et al.
+2013 ; Podgorski et al. 2013).
+
+**Effect of hunting**
+
+nocturnal activity should increase when they are exposed to hunting
+pressure (Keuling et al. 2008 ; Ohashi et al. 2013). Nocturnal activity
+did not increase during hunting season (Brivio et al. 2017).
+
+These results were validated by personal visualization and comparison
+with elements found in publications. Some answers were provided by
+discussion with the wildlife ranger of the region. A detailed
 statistical analysis is necessary to be able to affirm if the trends
 observed on the obtained graphs are significant or not. This analysis
 will be carried out in a second time, outside the framework of this
@@ -537,19 +638,46 @@ work.
 
 ## References
 
+Brivio F., Grignolio S., Brogi R., Benazzi M., Bertolucci C. & Apollonio
+M. (2017) : An analysis of intrinsic and extrinsic factors affecting the
+activity of a nocturnal species : The wild boar. Mammalian Biology 84:
+73-81.
+
+Gerard J-F., Cargnelutti, Spitz F., Valet G. & Sardin T. (1991) :
+Habitat use of wild boar in a French agroecosystem from late winter to
+early summer. Acta theriologica 36 (1-2): 119-129.
+
+Keuling O., Stier N. & Roth M. (2008) : How does hunting influence
+activity and spatial usage in wild boar Sus scrofa L. ? Eur. J. Wildl.
+Res 54: 729-737.
+
+Ohashi H. et al. (2013) : Differences in the activity pattern of the
+wild boar Sus scrofa related to human disturbance. Eur J. Wildl Res 59 :
+167-177.
+
+Pelayo A., Quiros-Fernandez F., Casal J. & Vicente J. (2014) : Spatial
+distribution fo wild boar population abundance : Basic information for
+spatial epidemilogy and wildlife management. Ecological Indicators 36 :
+594-600.
+
+Podgorski T., Bas G., Jedrzejewska B., Sönnichsen L., Sniezko S.,
+Jedrzejewski W. & Okarma H. (2013) : Spatiotemporal behavioral
+plasticity of wild boar (Sus scrofa) under contrasting conditions of
+human pressure : primeval forest and metropolitan area. J. Mammal. 94:
+109-119.
+
 Suter S.M & Fischer C. (2021) : Wildschwein, p .316-139 in : Graf R.F. &
 Fischer C. (2021): Atlas der Säugetiere. Schweiz und Liechtenstein.
 Schweizerische Gesellschaft für Wildtierbiologie SGW, Haupt Verlag,
-BernM
+Bern.
+
+Thurfjelle H., Spong G. & Ericsson G. (2013) : Effects of hunting on
+wild boar Sus scrofa behaviour. Wildlife Biology 19 : 87-93.
 
 ## R-Code
 
 ```{r}
 knitr::opts_chunk$set(eval = FALSE)
-```
-
-```{r}
-knitr::kable(df, caption = "This table shows...")
 ```
 
 ```{r, eval = FALSE, echo = TRUE}
@@ -558,23 +686,4 @@ knitr::kable(df, caption = "This table shows...")
 p <- ggplot(jojo2020, aes(X, Y)) + geom_path(show.legend = FALSE, mapping = aes(color = "indianred4")) + transition_time(Date) + labs(title = "Date : {frame_time}")
 path2020 <- animate(p, duration = 120, render = gifski_renderer())
 anim_save("jojo_path2020.gif", path2020)
-```
-
-```{r}
-#Main land cover use depending on hunting, 2020
-
-jojo_mc_hunting <- jojo_join %>% st_set_geometry(NULL) %>% mutate(Hunting, Maincover) %>% group_by(Hunting, Maincover) %>% count() %>% ungroup %>% group_by(Hunting) %>%  mutate(Percentage = n/sum(n)) %>% ungroup() %>% mutate(Maincover = fct_reorder(Maincover, n, sum, desc = TRUE))
-
-View(jojo_mc_hunting)
-
-ggplot(na.omit(jojo_mc_hunting), aes(Hunting, Percentage, fill = Maincover)) + geom_col(width = 0.3) + geom_bar(aes(Hunting, Percentage, fill= Maincover), colour="black", stat="identity") + scale_fill_brewer(palette = "YlGn")
-```
-
-```{r}
-#Speed depending on hunting pressure
-
-ggplot(data = jojo) + geom_boxplot(mapping = aes(x = Huntpressure, y = Speed), color = "indianred4") + scale_y_continuous(limits = c(0,30)) + ggtitle("Speed depending on Huntingpressure") + xlab("Hunting pressure") + ylab("Speed in m/min") + scale_x_discrete(limits=c("0", "1", "2", "3"))
-
-aggregate(Speed ~ Huntpressure, FUN=mean, data = jojo)
-
 ```
