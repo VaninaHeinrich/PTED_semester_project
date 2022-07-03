@@ -328,7 +328,7 @@ requiring detail such as a particular field, I worked with visualization
 in ArcGis Pro. The 2020 wild boar data frame and the geopackage data
 were then combined into a single data frame for further analysis.
 
-A ggplot was made to visualize the presence of wild boar on the
+A Bar plot was made to visualize the presence of wild boar on the
 different terrains.
 
 To find out the exact use of surface types by wild boar, the percentage
